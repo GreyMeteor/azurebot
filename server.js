@@ -34,7 +34,7 @@ var intentDialog = new builder.IntentDialog({recognizers: [luisRecognizer]});
 
 intentDialog.matches(/\b(yo|hi|hello|hey|howdy)\b/i, '/sayHi')
     .matches('getNews', '/topnews')
-    //.matches('analyseImage', '/analyseImage')
+    .matches('analyseImage', '/analyseImage')
 .onDefault(builder.DialogAction.send("Yo, can repeat again?"));
 
 
@@ -123,3 +123,46 @@ function sendTopNews(session, results, body){
         .attachments(cards);
     session.send(msg);
 }
+
+bot.dialog('/analyseImage', [
+    function (session){
+        // Ask the user which category they would like
+        // Choices are separated by |
+        builder.Prompts.choice(session, "Please provide an image link");
+    }, function (session, results, next){
+        // The user chose a category
+        if (results.response && results.response.entity !== '(quit)') {
+           //Show user that we're processing their request by sending the typing indicator
+            session.sendTyping();
+            // Build options for the request
+            var options = {
+                method: 'POST', // thie API call is a post request
+                uri: 'https://westus.api.cognitive.microsoft.com/vision/v1.0/describe?maxCandidates=1',
+                headers: {
+                    'Ocp-Apim-Subscription-Key': 'aa18e86e4f0f4fc98b29bfb6d7dc84b2',
+                    'Content-Type': 'application/json'
+                },
+                body: {
+                    url: results.response
+                },
+                json: true
+            }
+            //Make the call
+            rp(options).then(function (body){
+                // The request is successful
+                sendTopNews(session, results, body);
+                session.send("Managed to get your news.");
+            }).catch(function (err){
+                // An error occurred and the request failed
+                console.log(err.message);
+                session.send("Argh, something went wrong. :( Try again?");
+            }).finally(function () {
+                // This is executed at the end, regardless of whether the request is successful or not
+                session.endDialog();
+            });
+        } else {
+            // The user choses to quit
+            session.endDialog("Ok. Mission Aborted.");
+        }
+    }
+]);

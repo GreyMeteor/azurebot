@@ -20,6 +20,8 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
 var connector = new builder.ChatConnector({
     appId: process.env.MICROSOFT_APP_ID || '45feae90-b4f7-4dda-a974-339d4de04ae6',
     appPassword: process.env.MICROSOFT_APP_PASSWORD || 'BzqyU7jWG6jh3DYM5sduGnV'
+    //appId: process.env.MICROSOFT_APP_ID,
+    //appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 var bot = new builder.UniversalBot(connector);
 // If a Post request is made to /api/messages on port 3978 of our local server, then we pass it to the bot connector to handle
@@ -128,7 +130,7 @@ bot.dialog('/analyseImage', [
     function (session){
         // Ask the user which category they would like
         // Choices are separated by |
-        builder.Prompts.choice(session, "Please provide an image link");
+        builder.Prompts.text(session, "Please provide an image link");
     }, function (session, results, next){
         // The user chose a category
         if (results.response && results.response.entity !== '(quit)') {
@@ -150,8 +152,8 @@ bot.dialog('/analyseImage', [
             //Make the call
             rp(options).then(function (body){
                 // The request is successful
-                sendTopNews(session, results, body);
-                session.send("Managed to get your news.");
+                console.log(body);
+                session.send("Caption : " + body.description.captions[0].text);
             }).catch(function (err){
                 // An error occurred and the request failed
                 console.log(err.message);

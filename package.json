@@ -1,0 +1,16 @@
+{
+  "name": "azurebot",
+  "version": "1.0.0",
+  "description": "azurebot workshop",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "choonseng",
+  "license": "ISC",
+  "dependencies": {
+    "botbuilder": "^3.6.0",
+    "request-promise": "^4.1.1",
+    "restify": "^4.3.0"
+  }
+}
